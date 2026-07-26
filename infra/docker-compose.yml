@@ -1,0 +1,57 @@
+version: "3.8"
+
+# AtmoSync local dev stack
+# - Redpanda: Kafka-API-compatible broker (lighter than running Kafka + Zookeeper)
+# - Redpanda Console: web UI for inspecting topics/messages
+# - Superset: BI/dashboarding layer (connects out to Snowflake for querying)
+#
+# Snowflake itself is a managed cloud service, not run locally — see infra/.env.example
+# for the connection variables the ingestion/dbt layers will need.
+
+services:
+  redpanda:
+    image: redpandadata/redpanda:v24.2.7
+    container_name: atmosync-redpanda
+    command:
+      - redpanda
+      - start
+      - --smp=1
+      - --memory=512M
+      - --overprovisioned
+      - --node-id=0
+      - --kafka-addr=PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      - --advertise-kafka-addr=PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
+      - --pandaproxy-addr=0.0.0.0:8082
+      - --advertise-pandaproxy-addr=localhost:8082
+    ports:
+      - "9092:9092"   # Kafka API (external)
+      - "8082:8082"   # HTTP proxy
+      - "9644:9644"   # Admin API
+    volumes:
+      - redpanda-data:/var/lib/redpanda/data
+
+  redpanda-console:
+    image: redpandadata/console:v2.7.2
+    container_name: atmosync-redpanda-console
+    depends_on:
+      - redpanda
+    environment:
+      KAFKA_BROKERS: redpanda:29092
+    ports:
+      - "8080:8080"
+
+  superset:
+    image: apache/superset:3.1.0
+    container_name: atmosync-superset
+    depends_on:
+      - redpanda
+    environment:
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:-changeme_dev_only}
+    ports:
+      - "8088:8088"
+    volumes:
+      - superset-data:/app/superset_home
+
+volumes:
+  redpanda-data:
+  superset-data:
