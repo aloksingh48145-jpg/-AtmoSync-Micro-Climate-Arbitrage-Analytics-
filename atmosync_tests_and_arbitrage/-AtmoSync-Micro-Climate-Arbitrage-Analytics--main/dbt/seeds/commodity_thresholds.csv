@@ -1,0 +1,6 @@
+commodity,temp_min_c,temp_max_c,humidity_min_pct,humidity_max_pct
+dairy,2.0,4.0,80,90
+produce,0.0,4.0,85,95
+meat,-2.0,2.0,75,85
+seafood,-1.0,1.0,85,95
+flowers,1.0,4.0,85,95

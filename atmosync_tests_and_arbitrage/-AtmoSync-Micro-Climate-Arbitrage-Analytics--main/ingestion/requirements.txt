@@ -1,0 +1,4 @@
+confluent-kafka==2.5.0
+faker==26.0.0
+python-dotenv==1.0.1
+snowflake-connector-python==3.12.0
