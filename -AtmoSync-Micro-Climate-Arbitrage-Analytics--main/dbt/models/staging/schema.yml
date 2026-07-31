@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: stg_sensor_readings
+    description: Typed, flattened sensor readings (one row per reading event).
+    columns:
+      - name: event_id
+        description: Unique ID for the sensor reading event
+        tests:
+          - unique
+          - not_null
+      - name: shipment_id
+        description: ID of the shipment the sensor is attached to
+        tests:
+          - not_null
+      - name: commodity
+        description: Type of perishable good being shipped
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['dairy', 'produce', 'meat', 'seafood', 'flowers']
+      - name: temperature_c
+        tests:
+          - not_null
+      - name: humidity_pct
+        tests:
+          - not_null
+      - name: recorded_at
+        description: Timestamp the reading was taken at the sensor
+        tests:
+          - not_null
